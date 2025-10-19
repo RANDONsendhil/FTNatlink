@@ -1,0 +1,46 @@
+Metadata-Version: 2.1
+Name: pydebugstring
+Version: 1.0.0.2
+Summary: function to write python obects to OutputDebugString on windows
+Home-page: https://github.com/dougransom/pydebugstring
+Author: Doug Ransom
+Author-email: doug@ransom.vip
+Requires-Python: >=3.0
+Description-Content-Type: text/markdown
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+
+# pydbugstring
+
+Provides a function OutputDebugString to call:
+    - on win32 platforms, calls the ctypes.windll.kernel32.OutputDebugStringW with any Python Object, after converting that object to a string.  
+    - on other platforms, converts the argument to a string and discards it, returns 0
+
+Provides a handler for the Python Logging Module which sends logging to OutputDebugString.  On platforms other than win32, the logging output is disccarded.
+
+
+The output can be viewed using the [DebugView](https://learn.microsoft.com/en-us/sysinternals/downloads/debugview) program from the SysInternals  package from Microsoft.
+
+
+# Sample Use
+
+```
+import  pydebugstring
+import sys
+import logging
+#send an object to OutputDebugString
+logger=logging.getLogger()
+logger.setLevel(logging.DEBUG)
+logger.addHandler(pydebugstring.OutputDebugStringHandler())
+print(f"Sending sys.path [{sys.path}]  to outputDebugString")
+pydebugstring.outputDebugString(sys.path)
+
+debug_message = "Sample Debug Message"
+print(f"Sending [{debug_message}] with logging.info")
+
+logging.info(debug_message)
+
+```
+

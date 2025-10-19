@@ -1,0 +1,10 @@
+{
+  "name": "Sample Voice Commands",
+  "version": "1.0.0",
+  "description": "Basic sample voice commands for testing",
+  "author": "Your Name",
+  "grammars": [
+    "sample_grammar.py"
+  ],
+  "dependencies": []
+}

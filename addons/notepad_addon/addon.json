@@ -1,0 +1,10 @@
+{
+  "name": "Notepad Control Addon",
+  "version": "1.0.0",
+  "description": "Voice commands to open and control Notepad",
+  "author": "Sendhil RANDON",
+  "grammars": [
+    "notepad_grammar.py"
+  ],
+  "dependencies": []
+}

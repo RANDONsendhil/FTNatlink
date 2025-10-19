@@ -1,0 +1,14 @@
+# Core packages - installed in editable mode from local directories
+-e ./packages/dtactions
+-e ./packages/natlink/pythonsrc
+-e ./packages/natlinkcore
+
+# Dependencies (automatically installed with the above packages)
+# FreeSimpleGUI>=5.1.0
+# pydebugstring>=1.0.0.1
+# platformdirs>=4.2.0
+# pywin32>=311
+
+# Optional packages for development
+# pytest>=7.1.2
+# pyenvutils
