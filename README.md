@@ -35,13 +35,13 @@ A modern GUI application for managing Dragon NaturallySpeaking voice command gra
    
    **Recommended (handles all dependencies and natlink packages):**
    ```bash
-   python bootstrap_install.py
+   python setup/bootstrap_install.py
    ```
    
    **Alternative (manual installation):**
    ```bash
    pip install -r requirements.txt
-   python manage_versions.py install-yaml
+   python setup/manage_versions.py install-yaml
    ```
 
 ### Launch the GUI

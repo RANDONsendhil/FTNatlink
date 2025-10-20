@@ -1,8 +1,8 @@
 # FTNatlink Requirements
-# Use manage_versions.py for proper installation with version management
+# Use setup/manage_versions.py for proper installation with version management
 # 
 # Quick start:
-#   python manage_versions.py install
+#   python setup/manage_versions.py install
 #
 # Core packages - managed by version manager (do not install directly)
 # -e ./packages/dtactions
@@ -22,9 +22,8 @@ pytest>=7.1.2                  # Testing framework
 # pyenvutils                    # Environment utilities
 
 # Installation Notes:
-# 1. Use 'python manage_versions.py install' for natlink packages
-# 2. This ensures proper version substitution from package_config.toml
-# 3. Regular 'pip install -r requirements.txt' only installs dependencies
+# 1. Use 'python setup/manage_versions.py install' for natlink packages
+# 2. Regular 'pip install -r requirements.txt' only installs dependencies
 
 # Optional packages for development
 # pytest>=7.1.2
