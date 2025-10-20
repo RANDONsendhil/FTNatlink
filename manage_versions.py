@@ -5,7 +5,21 @@ Manages versions for natlink packages from configuration file
 Provides environment variables and installation helpers with variable substitution
 """
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    print("❌ Error: PyYAML is not installed")
+    print("🔧 This is common in fresh virtual environments.")
+    print()
+    print("Quick fix - run this command instead:")
+    print("  python bootstrap_install.py")
+    print()
+    print("Or install PyYAML manually first:")
+    print("  pip install pyyaml")
+    print("  python manage_versions.py install-yaml")
+    print()
+    exit(1)
+
 import sys
 import os
 import subprocess

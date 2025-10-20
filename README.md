@@ -31,9 +31,17 @@ A modern GUI application for managing Dragon NaturallySpeaking voice command gra
    .venv\Scripts\activate  # Windows
    ```
 
-3. **Install dependencies**
+3. **Install dependencies and packages**
+   
+   **Recommended (handles all dependencies and natlink packages):**
+   ```bash
+   python bootstrap_install.py
+   ```
+   
+   **Alternative (manual installation):**
    ```bash
    pip install -r requirements.txt
+   python manage_versions.py install-yaml
    ```
 
 ### Launch the GUI
