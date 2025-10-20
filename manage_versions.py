@@ -9,9 +9,9 @@ import yaml
 import sys
 import os
 import subprocess
+import shutil
 from pathlib import Path
 import tempfile
-import shutil
 
 
 class PackageVersionManager:
@@ -207,12 +207,64 @@ class PackageVersionManager:
         finally:
             Path(temp_script).unlink(missing_ok=True)
 
+    def clone_packages(self):
+        """Clone missing packages from GitHub repositories"""
+        repositories = self.config.get("repositories", {})
+        branches = self.config.get("branches", {})
+
+        for package_name, repo_url in repositories.items():
+            package_dir = Path(f"packages/{package_name}")
+            if package_name == "natlink":
+                # Check if the pythonsrc subdirectory exists
+                expected_path = Path("packages/natlink/pythonsrc")
+                if expected_path.exists():
+                    continue
+            elif package_dir.exists() and any(package_dir.iterdir()):
+                # Package directory exists and is not empty
+                continue
+
+            print(f"📥 Cloning {package_name} from {repo_url}")
+            branch = branches.get(package_name, "main")
+
+            try:
+                # Remove existing empty directory if it exists
+                if package_dir.exists():
+                    shutil.rmtree(package_dir)
+
+                # Try cloning with specified branch first
+                cmd = ["git", "clone", "-b", branch, repo_url, str(package_dir)]
+                result = subprocess.run(cmd, capture_output=True, text=True)
+
+                # If branch-specific clone fails, try without branch specification
+                if result.returncode != 0:
+                    print(f"⚠️  Branch '{branch}' not found, trying default branch...")
+                    cmd = ["git", "clone", repo_url, str(package_dir)]
+                    result = subprocess.run(cmd, capture_output=True, text=True)
+
+                if result.returncode == 0:
+                    print(f"✅ Successfully cloned {package_name}")
+                else:
+                    print(f"❌ Failed to clone {package_name}")
+                    print(f"Error: {result.stderr}")
+                    return False
+
+            except Exception as e:
+                print(f"❌ Error cloning {package_name}: {e}")
+                return False
+
+        return True
+
     def install_all_from_config(self):
         """Complete installation process using YAML configuration"""
         print("🚀 Starting YAML-configured installation process")
         print("=" * 60)
 
         success = True
+
+        # 0. Clone missing packages first
+        if not self.clone_packages():
+            print("❌ Failed to clone required packages")
+            return False
 
         # 1. Install core dependencies first
         if not self.install_dependencies("core"):
@@ -301,6 +353,8 @@ def main():
             manager.install_all_packages(editable=editable)
         elif command == "install-yaml":
             manager.install_all_from_config()
+        elif command == "clone":
+            manager.clone_packages()
         elif command == "install-deps":
             dep_type = sys.argv[2] if len(sys.argv) > 2 else "core"
             manager.install_dependencies(dep_type)
@@ -318,12 +372,15 @@ def main():
             manager.export_environment()
         else:
             print(
-                "Usage: python manage_versions.py [show|install|install-yaml|install-deps|run-script|install-package <name>|env]"
+                "Usage: python manage_versions.py [show|install|install-yaml|clone|install-deps|run-script|install-package <name>|env]"
             )
             print("Options:")
             print("  --no-editable    Install in non-editable mode")
             print("\nNew YAML-based commands:")
             print("  install-yaml     - Complete installation using YAML configuration")
+            print(
+                "  clone            - Clone missing packages from GitHub repositories"
+            )
             print(
                 "  install-deps     - Install dependencies (core|development|documentation)"
             )
@@ -336,6 +393,7 @@ def main():
         print("  show              - Show current versions")
         print("  install           - Install all packages with version substitution")
         print("  install-yaml      - Complete YAML-configured installation process")
+        print("  clone             - Clone missing packages from GitHub repositories")
         print("  install-deps      - Install specific dependency group")
         print("  install-package   - Install specific package")
         print("  run-script        - Run custom installation script")
