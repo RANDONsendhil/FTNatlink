@@ -1,13 +1,30 @@
-# Core packages - installed in editable mode from local directories
--e ./packages/dtactions
--e ./packages/natlink/pythonsrc
--e ./packages/natlinkcore
+# FTNatlink Requirements
+# Use manage_versions.py for proper installation with version management
+# 
+# Quick start:
+#   python manage_versions.py install
+#
+# Core packages - managed by version manager (do not install directly)
+# -e ./packages/dtactions
+# -e ./packages/natlink/pythonsrc  
+# -e ./packages/natlinkcore
 
-# Dependencies (automatically installed with the above packages)
-# FreeSimpleGUI>=5.1.0
-# pydebugstring>=1.0.0.1
-# platformdirs>=4.2.0
-# pywin32>=311
+# Core dependencies
+pyyaml>=6.0                     # For YAML configuration management (was toml)
+wxPython>=4.2.0                 # GUI framework
+pywin32>=311                    # Windows APIs
+FreeSimpleGUI>=5.1.0           # Additional GUI components
+pydebugstring>=1.0.0.1         # Debug utilities
+platformdirs>=4.2.0           # Platform-specific directories
+
+# Development tools (optional)
+pytest>=7.1.2                  # Testing framework
+# pyenvutils                    # Environment utilities
+
+# Installation Notes:
+# 1. Use 'python manage_versions.py install' for natlink packages
+# 2. This ensures proper version substitution from package_config.toml
+# 3. Regular 'pip install -r requirements.txt' only installs dependencies
 
 # Optional packages for development
 # pytest>=7.1.2

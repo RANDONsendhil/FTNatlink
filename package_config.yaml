@@ -1,0 +1,95 @@
+# Package Configuration for FTNatlink
+# YAML format is more readable and easier to edit than TOML
+
+# Package versions
+versions:
+  # Main natlink packages
+  natlink: "5.5.8"
+  natlinkcore: "5.4.2" 
+  dtactions: "1.6.4"
+  
+  # Dependencies
+  pywin32: "311"
+  wxPython: "4.2.0"
+  FreeSimpleGUI: "5.1.0"
+  pydebugstring: "1.0.0.1"
+  platformdirs: "4.2.0"
+
+# Git branches to use for each package
+branches:
+  natlink: "master"
+  natlinkcore: "master"
+  dtactions: "master"
+
+# GitHub repository URLs
+repositories:
+  natlink: "https://github.com/dictation-toolbox/natlink.git"
+  natlinkcore: "https://github.com/dictation-toolbox/natlinkcore.git"
+  dtactions: "https://github.com/dictation-toolbox/dtactions.git"
+
+# Build configuration
+build:
+  use_stable_versions: true
+  auto_update_pyproject: true
+
+# Installation process configuration
+installation:
+  order: ["dtactions", "natlink", "natlinkcore"]  # Installation order
+  editable: true
+  upgrade: false
+  user_install: false
+  
+  # Package-specific installation settings
+  packages:
+    natlink:
+      path: "packages/natlink/pythonsrc"
+      requirements_file: "packages/natlink/requirements-dev.txt"
+      pre_install_commands: []
+      post_install_commands: []
+    
+    natlinkcore:
+      path: "packages/natlinkcore"
+      requirements_file: "packages/natlinkcore/requirements-dev.txt"
+      pre_install_commands: []
+      post_install_commands: []
+    
+    dtactions:
+      path: "packages/dtactions"
+      requirements_file: "packages/dtactions/requirements-dev.txt"
+      pre_install_commands: []
+      post_install_commands: []
+
+# Dependencies organized by category
+dependencies:
+  # Core dependencies to install first
+  core:
+    - "pyyaml>=6.0"      # Changed from toml to pyyaml
+    - "wxPython>=4.2.0"
+    - "pywin32>=311"
+    - "FreeSimpleGUI>=5.1.0"
+    - "pydebugstring>=1.0.0.1"
+    - "platformdirs>=4.2.0"
+  
+  development:
+    - "pytest>=7.1.2"
+    - "pytest-cov"
+    - "black"
+    - "flake8"
+    - "mypy"
+  
+  documentation:
+    - "sphinx"
+    - "sphinx-rtd-theme"
+
+# Custom scripts for installation and testing
+scripts:
+  setup_venv: |
+    python -m venv .venv
+    call .venv\Scripts\activate.bat
+  
+  test_installation: |
+    echo "Testing FTNatlink installation..."
+    python -c "import yaml; import wx; print('✅ Core dependencies working')"
+    python -c "import sys; sys.path.insert(0, 'packages/dtactions/src'); import dtactions; print('✅ DTActions working')"
+    python -c "import sys; sys.path.insert(0, 'packages/natlinkcore/src'); import natlinkcore; print('✅ Natlinkcore working')"
+    echo "✅ Installation verification complete (Natlink requires Dragon to be running)"
