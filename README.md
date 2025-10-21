@@ -1,17 +1,18 @@
 <!-- @format -->
 
-# 🎤 FTNatlink - Natlink Grammar Manager
+# 🎤 FTNatlink - Dragon NaturallySpeaking Integration
 
-A modern GUI application for managing Dragon NaturallySpeaking voice command grammars with addon support.
+A comprehensive Python framework for creating and managing Dragon NaturallySpeaking voice command grammars with modern addon support and development tools.
 
 ## ✨ Features
 
-- **📋 Grammar Management**: Load, unload, and reload voice command grammars
-- **📦 Addon System**: Install and package voice command addons
-- **🔍 Split-View Interface**: View detailed grammar information including metadata
-- **📊 Activity Logging**: Track all operations and events
-- **🎨 Modern UI**: Tabbed interface with emoji icons
-- **🧪 Development Mode**: Test without Dragon using mock natlink runtime
+- **🐉 Dragon Integration**: Full Dragon NaturallySpeaking support with dragonfly2
+- ** Grammar Management**: Load, unload, and reload voice command grammars
+- **� DLL Build Tools**: Automated natlink DLL building and registration
+- **🧪 Development Mode**: Test without Dragon using fake natlink runtime
+- **🎨 Modern GUI**: Tabbed interface with emoji icons and activity logging
+- **🌐 Multi-Language**: Support for French and English voice commands
+- **📝 Notepad Integration**: Built-in example with French text insertion
 
 ## 🚀 Quick Start
 
@@ -31,114 +32,136 @@ A modern GUI application for managing Dragon NaturallySpeaking voice command gra
    .venv\Scripts\activate  # Windows
    ```
 
-3. **Install dependencies and packages**
+3. **Install dependencies**
    
-   **Recommended (handles all dependencies and natlink packages):**
-   ```bash
-   python setup/bootstrap_install.py
-   ```
-   
-   **Alternative (manual installation):**
    ```bash
    pip install -r requirements.txt
-   python setup/manage_versions.py install-yaml
+   ```
+
+4. **Setup Dragon integration (optional)**
+   
+   For full Dragon NaturallySpeaking support:
+   ```bash
+   # Check system status and build requirements
+   python build_natlink_dll.py --status
+   
+   # Build natlink DLL (requires CMake + Visual Studio)
+   python build_natlink_dll.py
+   ```
+
+5. **Development mode (no Dragon required)**
+   
+   ```bash
+   python develop_with_fake_runtime.py
    ```
 
 ### Launch the GUI
 
-Multiple ways to run the application:
-
 ```bash
-# Method 1: As Python package (recommended)
-python -m FTNatlink
-
-# Method 2: From package directory
-cd FTNatlink
-python __init__.py
-
-# Method 3: Run gui module directly
+# GUI Application
 python -m gui
 
-# Method 4: Direct Python import
-python -c "from gui import main; main()"
+# Development with fake runtime
+python develop_with_fake_runtime.py
 
-# Method 5: Legacy (if main.py still exists)
-python main.py
+# Check Dragon integration status
+python build_natlink_dll.py --status
+
+# Build natlink DLL for Dragon
+python build_natlink_dll.py
 ```
 
 ## 📂 Project Structure
 
 ```
 FTNatlink/
-├── __init__.py                  # Package entry point (replaces main.py)
-├── __main__.py                  # Module execution entry point
-├── core/                        # Core functionality module
-│   ├── __init__.py             # Core module exports
-│   ├── grammar_loader.py       # Grammar loading system
-│   ├── fake_natlink_runtime.py # Natlink mock for development
-│   └── test_commands.py        # Test utilities
-├── gui/                         # GUI module (refactored)
-│   ├── __init__.py             # GUI main() function
-│   ├── __main__.py             # GUI module execution
-│   ├── app.py                  # Application class
-│   ├── main_frame.py           # Main window frame
-│   ├── README.md               # GUI documentation
-│   └── tabs/                   # Tab modules
-│       ├── grammars_tab.py     # Grammar management
-│       ├── addons_tab.py       # Addon installation
-│       └── log_tab.py          # Activity log
-├── addon_manager/              # Addon management module
-│   ├── __init__.py            # Module exports
-│   ├── addon_installer.py     # Addon installation
-│   ├── addon_packager.py      # Addon packaging
-│   └── README.md              # Addon manager docs
-├── addon_packager.py           # Convenience script (wrapper)
-├── grammar_loader.py           # Grammar loading system
-├── fake_natlink_runtime.py     # Mock natlink for development
-├── test_commands.py            # Test voice commands
-├── windows_speech.py           # Windows Speech Recognition
-├── grammars/                   # Voice command grammars
-│   ├── notepad_grammar.py      # Example: Notepad control
-│   └── sample_grammar.py       # Example: Sample commands
-├── addons/                     # Addon source folders
-│   ├── notepad_addon/          # Example addon
-│   │   ├── addon.json          # Addon metadata
-│   │   ├── notepad_grammar.py  # Grammar file
+├── __init__.py                     # Package entry point
+├── build_natlink_dll.py           # 🔨 DLL build & registration tool
+├── develop_with_fake_runtime.py   # 🧪 Development runtime (no Dragon)
+├── requirements.txt               # 📦 Python dependencies
+├── package_config.yaml           # ⚙️ Project configuration
+├── core/                          # Core functionality
+│   ├── __init__.py
+│   ├── grammar_loader.py          # Grammar loading system
+│   ├── fake_natlink_runtime.py    # Mock natlink for development
+│   └── test_commands.py           # Test utilities
+├── gui/                           # 🎨 GUI Application
+│   ├── __init__.py                # GUI main() function
+│   ├── app.py                     # Application class
+│   ├── main_frame.py              # Main window
+│   └── tabs/                      # Tab modules
+│       ├── grammars_tab.py        # Grammar management
+│       ├── addons_tab.py          # Addon installation
+│       └── log_tab.py             # Activity logging
+├── addon_manager/                 # 📦 Addon Management
+│   ├── __init__.py
+│   ├── addon_installer.py         # Addon installation
+│   └── addon_packager.py          # Addon packaging
+├── addons/                        # 🎤 Voice Command Addons
+│   ├── notepad_addon/             # Example: Notepad control
+│   │   ├── addon.json             # Addon metadata
+│   │   ├── _global_mirror.py      # 🐉 Dragon grammar (dragonfly)
 │   │   └── README.md
-│   └── *.addon-natlink         # Packaged addons
-├── packages/                   # Local natlink packages
-│   ├── natlink/                # Core natlink
-│   ├── natlinkcore/            # Natlink core
-│   └── dtactions/              # Dragon actions
-└── docs/                       # Documentation
-    ├── PROJECT_SETUP.md
-    ├── ADDON_INSTALL_GUIDE.md
-    └── GUI_TAB_GUIDE.md
+│   ├── sample_addon/              # Example: Sample commands
+│   └── *.addon-natlink            # Packaged addons
+├── grammars/                      # 📝 Grammar definitions
+├── packages/                      # 📚 Local natlink packages
+│   ├── natlink/                   # Core natlink
+│   ├── natlinkcore/               # Natlink core  
+│   ├── dtactions/                 # Dragon actions
+│   └── dragonfly/                 # Dragonfly (Bayesian optimization)
+├── tools/                         # 🔧 Utility tools
+│   ├── dragon_natlink_diagnostic.py
+│   ├── process_monitor.py
+│   └── windows_speech.py
+├── setup/                         # ⚡ Installation scripts
+└── docs/                          # 📚 Documentation
 ```
 
 ## 🎯 Usage
 
-### Grammar Management
+### 🐉 Dragon Voice Commands (Production)
 
-1. Open the **Grammars** tab
-2. Click **📋 Refresh** to list available grammars
-3. Click any grammar to view details
-4. Click **⬇️ Load All** to activate grammars
+With Dragon NaturallySpeaking running:
 
-### Addon Installation
-
-1. Open the **Addons** tab
-2. Click **📦 Install Addon from File**
-3. Select a `.addon-natlink` file
-4. Grammars are automatically reloaded
-
-### Create Your Own Addon
-
-```bash
-python addon_packager.py addons/your_addon
+```python
+# The notepad addon provides these voice commands:
+"melvin"                    # Opens Notepad with French text
+"ouvre bloc note"          # French: Open Notepad  
+"open notepad"             # English: Open Notepad
+"lance bloc note"          # French: Launch Notepad
 ```
 
-See [ADDON_INSTALL_GUIDE.md](ADDON_INSTALL_GUIDE.md) for details.
+### 🧪 Development Mode (No Dragon)
+
+Test grammars without Dragon:
+
+```bash
+python develop_with_fake_runtime.py
+```
+
+### 📋 Grammar Management (GUI)
+
+1. Launch GUI: `python -m gui`
+2. **Grammars** tab: Load/unload voice commands
+3. **Log** tab: Monitor activity
+
+### 🔨 Dragon Integration Setup
+
+Check your system and build natlink DLL:
+
+```bash
+# Quick status check
+python build_natlink_dll.py --status
+
+# Interactive build process
+python build_natlink_dll.py
+
+# Help and options
+python build_natlink_dll.py --help
+```
+
+
 
 ## 🛠️ Development
 
@@ -189,23 +212,25 @@ grammar.load()
 
 - **[PROJECT_SETUP.md](PROJECT_SETUP.md)** - Complete setup guide
 - **[GUI_TAB_GUIDE.md](GUI_TAB_GUIDE.md)** - GUI usage instructions
-- **[ADDON_INSTALL_GUIDE.md](ADDON_INSTALL_GUIDE.md)** - Addon creation and installation
 - **[gui/README.md](gui/README.md)** - GUI architecture documentation
 
 ## 🔧 Technology Stack
 
-- **Python 3.12**: Core language
+- **Python 3.13**: Core language
 - **wxPython**: GUI framework
+- **dragonfly2**: Dragon speech recognition library
 - **natlink**: Dragon NaturallySpeaking integration
 - **natlinkcore**: Natlink core functionality
 - **dtactions**: Dragon action commands
 
 ## 📋 Requirements
 
-- Python 3.12+
+- Python 3.13+ (32-bit recommended for Dragon compatibility)
 - wxPython 4.2.0+
+- dragonfly2 0.35.0+
 - natlink 5.5.8+
-- Dragon NaturallySpeaking (for production use)
+- Dragon NaturallySpeaking 16+ (for production use)
+- CMake + Visual Studio (for DLL building)
 
 ## 🤝 Contributing
 

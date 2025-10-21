@@ -17,13 +17,50 @@ FreeSimpleGUI>=5.1.0           # Additional GUI components
 pydebugstring>=1.0.0.1         # Debug utilities
 platformdirs>=4.2.0           # Platform-specific directories
 
-# Development tools (optional)
+# Dragon NaturallySpeaking integration
+dragonfly2>=0.35.0             # Dragon speech recognition library for grammar creation
+comtypes>=1.4.0                # COM interface support (required for Dragon integration)
+pyperclip>=1.11.0             # Clipboard operations for text manipulation
+
+# Logging and monitoring
+colorama>=0.4.6                # Cross-platform colored terminal text
+debugpy>=1.8.0                 # Python debugger
+
+# Network and data processing
+requests>=2.32.0               # HTTP client for web requests
+urllib3>=2.5.0                 # HTTP client library
+certifi>=2025.10.0             # Certificate bundle for HTTPS
+charset-normalizer>=3.4.0     # Unicode text normalization
+
+# Text processing and parsing
+regex>=2025.10.0               # Advanced regular expressions
+lark-parser>=0.8.0             # Parser generator for grammar processing
+six>=1.17.0                    # Python 2/3 compatibility utilities
+
+# Development and build tools
 pytest>=7.1.2                  # Testing framework
-# pyenvutils                    # Environment utilities
+pyinstaller>=6.16.0            # Executable builder for standalone distributions
+Pillow>=12.0.0                 # Image processing for icon conversion and graphics
+numpy>=1.26.0                   # Scientific computing (for advanced Dragon features)
+scipy>=1.16.0                  # Scientific computing extensions
+Pygments>=2.19.0               # Syntax highlighting for code display
+
+# Web and JSON processing
+json-rpc>=1.15.0               # JSON-RPC protocol support
+Werkzeug>=3.1.0                # WSGI utility library
+MarkupSafe>=3.0.0              # Safe string handling for templates
+
+# System utilities
+future>=1.0.0                  # Python 2/3 compatibility
+decorator>=5.2.0               # Function decoration utilities
+iniconfig>=2.3.0               # INI configuration parsing
+pluggy>=1.6.0                  # Plugin system
 
 # Installation Notes:
 # 1. Use 'python setup/manage_versions.py install' for natlink packages
 # 2. Regular 'pip install -r requirements.txt' only installs dependencies
+# 3. Logging is handled by Python's built-in logging module (no additional deps needed)
+# 4. PyInstaller creates standalone executables with embedded dependencies
 
 # Optional packages for development
 # pytest>=7.1.2

@@ -15,15 +15,33 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Setup logging first
+from core.logging_config import get_logger, setup_logging
+
+setup_logging()
+log = get_logger(__name__)
+
 from core import load_grammars, LOADED
 from addon_manager import install_addon
 from gui.main_frame import GrammarManagerFrame
 
-print("wx version:", wx.VERSION_STRING)
-print("wx.adv available:", hasattr(wx, "adv"))
+log.info(f"wx version: {wx.VERSION_STRING}")
+log.info(f"wx.adv available: {hasattr(wx, 'adv')}")
 __all__ = ["main"]
 
-ICON_PATH = os.path.join(os.path.dirname(__file__), "icons/FTNatlink_DARK_BLUE.jpg")
+
+# Handle PyInstaller path resolution
+def get_resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller"""
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
+
+
+ICON_PATH = get_resource_path("icons/FTNatlink_DARK_BLUE.jpg")
 
 
 def main():
@@ -97,7 +115,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
 
             # Display already loaded grammars (loaded on startup)
             self.grammar_window.log_msg("� Grammar Manager - Current Status:")
-            
+
             # Log loaded grammars
             if LOADED:
                 for name, module in LOADED.items():
@@ -133,57 +151,57 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
             grammar_list = "\n".join([f"• {name}" for name in LOADED.keys()])
             message = f"FTNatlink is running in background.\n\nLoaded grammars ({len(LOADED)}):\n{grammar_list}"
         else:
-            message = "FTNatlink is running in background.\n\nNo grammars currently loaded."
-        
+            message = (
+                "FTNatlink is running in background.\n\nNo grammars currently loaded."
+            )
+
         wx.MessageBox(message, "FTNatlink Status", wx.OK | wx.ICON_INFORMATION)
 
     def reload_grammars(self):
         """Reload all grammars."""
         try:
-            print("🔄 Reloading grammars...")
-            
+            log.info("🔄 Reloading grammars...")
+
             # Clear existing grammars first
             LOADED.clear()
-            
+
             # Reload grammars
             load_grammars()
-            
+
             # Log results
             if LOADED:
                 for name, module in LOADED.items():
                     addon_name = getattr(module, "__file__", "")
                     if addon_name:
                         addon_path = Path(addon_name).parent.name
-                        print(f"✅ Reloaded grammar: {name} ({addon_path})")
+                        log.info(f"✅ Reloaded grammar: {name} ({addon_path})")
                     else:
-                        print(f"✅ Reloaded grammar: {name}")
-                print(f"📊 Total grammars reloaded: {len(LOADED)}")
-                
+                        log.info(f"✅ Reloaded grammar: {name}")
+                log.info(f"📊 Total grammars reloaded: {len(LOADED)}")
+
                 wx.MessageBox(
-                    f"Successfully reloaded {len(LOADED)} grammar(s)!", 
-                    "Reload Complete", 
-                    wx.OK | wx.ICON_INFORMATION
+                    f"Successfully reloaded {len(LOADED)} grammar(s)!",
+                    "Reload Complete",
+                    wx.OK | wx.ICON_INFORMATION,
                 )
             else:
-                print("⚠️ No grammars found after reload")
+                log.warning("⚠️ No grammars found after reload")
                 wx.MessageBox(
-                    "No grammars found to load.", 
-                    "Reload Complete", 
-                    wx.OK | wx.ICON_WARNING
+                    "No grammars found to load.",
+                    "Reload Complete",
+                    wx.OK | wx.ICON_WARNING,
                 )
-                
+
         except Exception as e:
-            print(f"❌ Error reloading grammars: {e}")
+            log.error(f"❌ Error reloading grammars: {e}")
             wx.MessageBox(
-                f"Error reloading grammars:\n{e}", 
-                "Reload Error", 
-                wx.OK | wx.ICON_ERROR
+                f"Error reloading grammars:\n{e}", "Reload Error", wx.OK | wx.ICON_ERROR
             )
 
     def restart_app(self):
         """Restart the app properly by cleaning up current instance first."""
         try:
-            print("Restarting application...")
+            log.info("Restarting application...")
 
             # Stop background thread first
             app = wx.GetApp()
@@ -202,7 +220,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
             wx.CallAfter(self._perform_restart)
 
         except Exception as e:
-            print(f"Error during restart cleanup: {e}")
+            log.error(f"Error during restart cleanup: {e}")
             self._perform_restart()
 
     def _perform_restart(self):
@@ -223,13 +241,13 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
             wx.CallLater(2000, lambda: os._exit(0))
 
         except Exception as e:
-            print(f"Error during restart: {e}")
+            log.error(f"Error during restart: {e}")
             os._exit(0)
 
     def quit_app(self):
         """Properly quit the application with cleanup."""
         try:
-            print("Quitting application...")
+            log.info("Quitting application...")
 
             # Stop background thread first
             app = wx.GetApp()
@@ -252,7 +270,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
             wx.CallAfter(self._force_exit)
 
         except Exception as e:
-            print(f"Error during quit: {e}")
+            log.error(f"Error during quit: {e}")
             # Force exit if cleanup fails
             wx.CallAfter(self._force_exit)
 
@@ -276,7 +294,7 @@ class MainApp(wx.App):
         self._running = True  # Flag to control background thread
 
         # Load grammars on startup
-        print("🔄 Loading grammars on startup...")
+        log.info("🔄 Loading grammars on startup...")
         load_grammars()
 
         # Log loaded grammars
@@ -285,14 +303,14 @@ class MainApp(wx.App):
                 addon_name = getattr(module, "__file__", "")
                 if addon_name:
                     addon_path = Path(addon_name).parent.name
-                    print(f"✅ Loaded grammar: {name} ({addon_path})")
+                    log.info(f"✅ Loaded grammar: {name} ({addon_path})")
                 else:
-                    print(f"✅ Loaded grammar: {name}")
-            print(f"📊 Total grammars loaded: {len(LOADED)}")
+                    log.info(f"✅ Loaded grammar: {name}")
+            log.info(f"📊 Total grammars loaded: {len(LOADED)}")
         else:
-            print("⚠️ No grammars found")
+            log.warning("⚠️ No grammars found")
 
-        print("")  # Empty line for readability
+        log.info("")  # Empty line for readability
 
         # Start tray icon
         self.taskbar_icon = TaskBarIcon(self.frame)
@@ -304,9 +322,9 @@ class MainApp(wx.App):
     def background_task(self):
         """Example background work."""
         while self._running:
-            print("Background process running...")
+            log.debug("Background process running...")
             time.sleep(10)
-        print("Background process stopped.")
+        log.info("Background process stopped.")
 
     def stop_background_task(self):
         """Stop the background thread."""
