@@ -1,52 +1,67 @@
 <!-- @format -->
 
-# 🎤 FTNatlink - Natlink Grammar Manager
+# Documentation FTNatlink
 
-A modern GUI application for managing Dragon NaturallySpeaking voice command grammars with addon support.
+## 📚 Vue d'ensemble
 
-## ✨ Features
+Cette documentation couvre l'utilisation et le développement pour FTNatlink, un système de reconnaissance vocale basé sur Dragon NaturallySpeaking.
 
-- **📋 Grammar Management**: Load, unload, and reload voice command grammars
-- **📦 Addon System**: Install and package voice command addons
-- **🔍 Split-View Interface**: View detailed grammar information including metadata
-- **📊 Activity Logging**: Track all operations and events
-- **🎨 Modern UI**: Tabbed interface with emoji icons
-- **🧪 Development Mode**: Test without Dragon using mock natlink runtime
+## 📖 Guides Disponibles
 
-## 🚀 Quick Start
+### 1. [Guide des Addons](ADDONS_GUIDE.md)
+Documentation complète sur :
+- Installation des addons via l'interface graphique
+- Développement d'addons personnalisés
+- Structure et format des fichiers `.natlink-addon`
+- Exemples de code et bonnes pratiques
+- Dépannage des problèmes d'addons
+
+### 2. [Guide de l'Interface Graphique](GUI_GUIDE.md)
+Documentation sur l'utilisation de l'interface :
+- Navigation dans les onglets
+- Gestion des grammaires de reconnaissance vocale
+- Installation d'addons via l'interface
+- Interprétation des messages de log
+- Dépannage de l'interface
+
+## 🚀 Démarrage Rapide
 
 ### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/RANDONsendhil/FTNatlink.git
-   cd FTNatlink
-   ```
-
-2. **Create virtual environment**
-
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate  # Windows
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### Launch the GUI
-
-Multiple ways to run the application:
-
-```bash
-# Method 1: As Python package (recommended)
-python -m FTNatlink
-
-# Method 2: From package directory
+```powershell
+# Cloner le projet
+git clone https://github.com/RANDONsendhil/FTNatlink.git
 cd FTNatlink
-python __init__.py
+
+# Activer l'environnement virtuel
+.venv\Scripts\activate
+
+# Lancer l'interface graphique
+python -m gui
+```
+
+### Premier Addon
+```powershell
+# Installer un addon existant
+python -m gui addons/Notepad_Control_Addon.natlink-addon
+```
+
+## 🔗 Liens Utiles
+
+- **Dossier Addons** : `addons/` - Contient les addons disponibles
+- **Dossier Grammaires** : `grammars/` - Grammaires extraites
+- **Logs** : Visibles dans l'interface graphique
+- **Configuration** : `installed_addons/` - Addons installés
+
+## 🆘 Support
+
+Pour obtenir de l'aide :
+1. Consulter les guides spécifiques ci-dessus
+2. Vérifier les messages de log dans l'interface
+3. Consulter les exemples dans le dossier `addons/`
+
+---
+
+*Cette documentation est maintenue à jour avec les dernières fonctionnalités de FTNatlink.*
 
 # Method 3: Run gui module directly
 python -m gui

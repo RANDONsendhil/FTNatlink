@@ -16,10 +16,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Setup logging first
-from core.logging_config import get_logger, setup_logging
+from core.logging_config import setup_logging
+from core.logHandler import log
 
 setup_logging()
-log = get_logger(__name__)
 
 from core import load_grammars, LOADED
 from addon_manager import install_addon
@@ -124,13 +124,13 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
                     if addon_name:
                         addon_path = Path(addon_name).parent.name
                         self.grammar_window.log_msg(
-                            f"✅ Active grammar: {name} ({addon_path})"
+                            f"Active grammar: {name} ({addon_path})"
                         )
                     else:
-                        self.grammar_window.log_msg(f"✅ Active grammar: {name}")
-                self.grammar_window.log_msg(f"📊 Total active grammars: {len(LOADED)}")
+                        self.grammar_window.log_msg(f"Active grammar: {name}")
+                self.grammar_window.log_msg(f"Total active grammars: {len(LOADED)}")
             else:
-                self.grammar_window.log_msg("⚠️ No grammars currently active")
+                self.grammar_window.log_msg("No grammars currently active")
 
             self.grammar_window.log_msg("")
 
@@ -160,7 +160,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
     def reload_grammars(self):
         """Reload all grammars."""
         try:
-            log.info("🔄 Reloading grammars...")
+            log.info("Reloading grammars...")
 
             # Clear existing grammars first
             LOADED.clear()
@@ -174,10 +174,10 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
                     addon_name = getattr(module, "__file__", "")
                     if addon_name:
                         addon_path = Path(addon_name).parent.name
-                        log.info(f"✅ Reloaded grammar: {name} ({addon_path})")
+                        log.info(f"Reloaded grammar: {name} ({addon_path})")
                     else:
-                        log.info(f"✅ Reloaded grammar: {name}")
-                log.info(f"📊 Total grammars reloaded: {len(LOADED)}")
+                        log.info(f"Reloaded grammar: {name}")
+                log.info(f"Total grammars reloaded: {len(LOADED)}")
 
                 wx.MessageBox(
                     f"Successfully reloaded {len(LOADED)} grammar(s)!",
@@ -185,7 +185,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
                     wx.OK | wx.ICON_INFORMATION,
                 )
             else:
-                log.warning("⚠️ No grammars found after reload")
+                log.warning("No grammars found after reload")
                 wx.MessageBox(
                     "No grammars found to load.",
                     "Reload Complete",
@@ -193,7 +193,7 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
                 )
 
         except Exception as e:
-            log.error(f"❌ Error reloading grammars: {e}")
+            log.error(f"Error reloading grammars: {e}")
             wx.MessageBox(
                 f"Error reloading grammars:\n{e}", "Reload Error", wx.OK | wx.ICON_ERROR
             )
@@ -294,7 +294,7 @@ class MainApp(wx.App):
         self._running = True  # Flag to control background thread
 
         # Load grammars on startup
-        log.info("🔄 Loading grammars on startup...")
+        log.info("Loading grammars on startup...")
         load_grammars()
 
         # Log loaded grammars
@@ -303,12 +303,12 @@ class MainApp(wx.App):
                 addon_name = getattr(module, "__file__", "")
                 if addon_name:
                     addon_path = Path(addon_name).parent.name
-                    log.info(f"✅ Loaded grammar: {name} ({addon_path})")
+                    log.info(f"Loaded grammar: {name} ({addon_path})")
                 else:
-                    log.info(f"✅ Loaded grammar: {name}")
-            log.info(f"📊 Total grammars loaded: {len(LOADED)}")
+                    log.info(f"Loaded grammar: {name}")
+            log.info(f"Total grammars loaded: {len(LOADED)}")
         else:
-            log.warning("⚠️ No grammars found")
+            log.warning("No grammars found")
 
         log.info("")  # Empty line for readability
 

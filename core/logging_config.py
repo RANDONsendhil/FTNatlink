@@ -43,9 +43,9 @@ def setup_logging(log_level=logging.INFO):
 
     log_file = log_dir / "ftnatlink.log"
 
-    # Configure logging format
+    # Configure logging format with timestamp prefix
     formatter = logging.Formatter(
-        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        fmt="[%(asctime)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 

@@ -24,7 +24,7 @@ def create_icon_from_image(project_root):
 
     # If ICO already exists, use it
     if ico_file.exists():
-        print(f"✅ Found existing ICO file: {ico_file}")
+        print(f"Found existing ICO file: {ico_file}")
         return ico_file
 
     # Look for JPEG files to convert
@@ -34,12 +34,12 @@ def create_icon_from_image(project_root):
     ]
 
     if not PILLOW_AVAILABLE:
-        print("⚠️  Pillow not available for image conversion")
+        print("Pillow not available for image conversion")
         return None
 
     for jpeg_file in jpeg_files:
         if jpeg_file.exists():
-            print(f"📷 Converting {jpeg_file.name} to ICO format...")
+            print(f"Converting {jpeg_file.name} to ICO format...")
             try:
                 # Open and convert image
                 with Image.open(jpeg_file) as img:
@@ -60,14 +60,14 @@ def create_icon_from_image(project_root):
 
                     # Save as ICO with multiple sizes
                     img.save(ico_file, format="ICO", sizes=sizes)
-                    print(f"✅ Created icon file: {ico_file}")
+                    print(f"Created icon file: {ico_file}")
                     return ico_file
 
             except Exception as e:
-                print(f"❌ Failed to convert {jpeg_file.name}: {e}")
+                print(f"Failed to convert {jpeg_file.name}: {e}")
                 continue
 
-    print("⚠️  No suitable image files found for icon conversion")
+    print("No suitable image files found for icon conversion")
     return None
 
 
@@ -121,8 +121,8 @@ def build_exe():
         f"--add-data={project_root}/package_config.yaml;.",
         f"--add-data={project_root}/requirements.txt;.",
         # Include important Python scripts
-        f"--add-data={project_root}/build_natlink_dll.py;.",
-        f"--add-data={project_root}/develop_with_fake_runtime.py;.",
+        f"--add-data={project_root}/build_tools/build_natlink_dll.py;build_tools",
+        f"--add-data={project_root}/development/develop_with_fake_runtime.py;development",
         # Include packages directory
         f"--add-data={project_root}/packages;packages",
         # Exclude unnecessary modules to reduce size
@@ -135,33 +135,33 @@ def build_exe():
     # Add icon if available
     if icon_file and icon_file.exists():
         args.append(f"--icon={icon_file}")
-        print(f"✅ Using icon: {icon_file}")
+        print(f"Using icon: {icon_file}")
     else:
-        print("⚠️  No icon found, building without icon")
+        print("No icon found, building without icon")
 
     # Add version info if available
     version_args = [
         "--version-file=version_info.txt",  # We'll create this
     ]
 
-    print("🔨 Building FTNatlink.exe...")
-    print(f"📁 Main script: {main_script}")
-    print(f"📁 Project root: {project_root}")
+    print("Building FTNatlink.exe...")
+    print(f"Main script: {main_script}")
+    print(f"Project root: {project_root}")
 
     # Run PyInstaller
     try:
         PyInstaller.__main__.run(args)
-        print("✅ Build completed successfully!")
-        print(f"📦 Executable created: {project_root}/dist/FTNatlink.exe")
+        print("Build completed successfully!")
+        print(f"Executable created: {project_root}/dist/FTNatlink.exe")
 
         # Show file size
         exe_path = project_root / "dist" / "FTNatlink.exe"
         if exe_path.exists():
             size_mb = exe_path.stat().st_size / (1024 * 1024)
-            print(f"📊 File size: {size_mb:.1f} MB")
+            print(f"File size: {size_mb:.1f} MB")
 
     except Exception as e:
-        print(f"❌ Build failed: {e}")
+        print(f"Build failed: {e}")
         return False
 
     return True
@@ -206,11 +206,11 @@ VSVersionInfo(
 
     with open("version_info.txt", "w") as f:
         f.write(version_content)
-    print("✅ Created version_info.txt")
+    print("Created version_info.txt")
 
 
 if __name__ == "__main__":
-    print("🚀 FTNatlink Executable Builder")
+    print("FTNatlink Executable Builder")
     print("=" * 50)
 
     # Create version info
@@ -218,11 +218,11 @@ if __name__ == "__main__":
 
     # Build executable
     if build_exe():
-        print("\n🎉 Success! Your FTNatlink.exe is ready!")
-        print("📁 Location: dist/FTNatlink.exe")
-        print("\n💡 Usage:")
+        print("\nSuccess! Your FTNatlink.exe is ready!")
+        print("Location: dist/FTNatlink.exe")
+        print("\nUsage:")
         print("   - Double-click FTNatlink.exe to run")
         print("   - No Python installation needed on target machine")
         print("   - Includes all dependencies")
     else:
-        print("\n❌ Build failed. Check error messages above.")
+        print("\nBuild failed. Check error messages above.")

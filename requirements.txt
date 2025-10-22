@@ -1,67 +1,65 @@
 # FTNatlink Requirements
-# Use setup/manage_versions.py for proper installation with version management
-# 
-# Quick start:
-#   python setup/manage_versions.py install
+# Installation : pip install -r requirements.txt
+
+# === CORE GUI FRAMEWORK ===
+wxPython>=4.2.0                # Interface graphique principale
+# Interface utilisateur utilisée dans gui/, __init__.py
+
+# === DRAGON NATURALLYSPEAKING INTEGRATION ===
+dragonfly2>=0.35.0             # Bibliothèque de reconnaissance vocale Dragon
+# Utilisée dans addons/, grammars/, et les exemples de la documentation
+
+# === SYSTEM INTEGRATION ===
+pywin32>=311                   # APIs Windows pour integration système
+# Requis pour l'intégration Dragon et les fonctionnalités Windows
+
+six>=1.17.0                    # Compatibilité Python 2/3
+# Utilisé par dragonfly et d'autres dépendances
+
+# === BUILD TOOLS ===
+PyInstaller>=6.16.0            # Construction d'exécutables standalone
+# Utilisé dans build_exe.py pour créer FTNatlink.exe
+
+Pillow>=12.0.0                 # Traitement d'images pour icônes
+# Utilisé dans build_exe.py pour la conversion d'icônes
+
+# === DEVELOPMENT & MONITORING TOOLS ===
+psutil>=1.2.1                  # Monitoring des processus système
+# Utilisé dans tools/process_monitor.py
+
+speech-recognition>=3.8.1      # Alternative de reconnaissance vocale
+# Utilisé dans tools/windows_speech.py
+
+pyttsx3>=2.90                  # Synthèse vocale text-to-speech
+# Utilisé dans tools/windows_speech.py
+
+# === CONFIGURATION & DATA ===
+pyyaml>=6.0                    # Gestion des fichiers de configuration YAML
+# Format de configuration préféré (remplace TOML)
+
+# === OPTIONAL: ADVANCED FEATURES ===
+# Ces packages sont optionnels et peuvent être installés selon les besoins
+
+# colorama>=0.4.6              # Couleurs dans le terminal
+# requests>=2.32.0             # Client HTTP pour requêtes web  
+# pytest>=7.1.2                # Framework de tests
+# debugpy>=1.8.0               # Débogueur Python
+
+# === PACKAGES GÉRÉS PAR setup/manage_versions.py ===
+# Ces packages sont installés via le gestionnaire de versions :
+# - dtactions (./packages/dtactions)
+# - natlink (./packages/natlink/pythonsrc)  
+# - natlinkcore (./packages/natlinkcore)
 #
-# Core packages - managed by version manager (do not install directly)
-# -e ./packages/dtactions
-# -e ./packages/natlink/pythonsrc  
-# -e ./packages/natlinkcore
+# Installation : python setup/manage_versions.py install
 
-# Core dependencies
-pyyaml>=6.0                     # For YAML configuration management (was toml)
-wxPython>=4.2.0                 # GUI framework
-pywin32>=311                    # Windows APIs
-FreeSimpleGUI>=5.1.0           # Additional GUI components
-pydebugstring>=1.0.0.1         # Debug utilities
-platformdirs>=4.2.0           # Platform-specific directories
-
-# Dragon NaturallySpeaking integration
-dragonfly2>=0.35.0             # Dragon speech recognition library for grammar creation
-comtypes>=1.4.0                # COM interface support (required for Dragon integration)
-pyperclip>=1.11.0             # Clipboard operations for text manipulation
-
-# Logging and monitoring
-colorama>=0.4.6                # Cross-platform colored terminal text
-debugpy>=1.8.0                 # Python debugger
-
-# Network and data processing
-requests>=2.32.0               # HTTP client for web requests
-urllib3>=2.5.0                 # HTTP client library
-certifi>=2025.10.0             # Certificate bundle for HTTPS
-charset-normalizer>=3.4.0     # Unicode text normalization
-
-# Text processing and parsing
-regex>=2025.10.0               # Advanced regular expressions
-lark-parser>=0.8.0             # Parser generator for grammar processing
-six>=1.17.0                    # Python 2/3 compatibility utilities
-
-# Development and build tools
-pytest>=7.1.2                  # Testing framework
-pyinstaller>=6.16.0            # Executable builder for standalone distributions
-Pillow>=12.0.0                 # Image processing for icon conversion and graphics
-numpy>=1.26.0                   # Scientific computing (for advanced Dragon features)
-scipy>=1.16.0                  # Scientific computing extensions
-Pygments>=2.19.0               # Syntax highlighting for code display
-
-# Web and JSON processing
-json-rpc>=1.15.0               # JSON-RPC protocol support
-Werkzeug>=3.1.0                # WSGI utility library
-MarkupSafe>=3.0.0              # Safe string handling for templates
-
-# System utilities
-future>=1.0.0                  # Python 2/3 compatibility
-decorator>=5.2.0               # Function decoration utilities
-iniconfig>=2.3.0               # INI configuration parsing
-pluggy>=1.6.0                  # Plugin system
-
-# Installation Notes:
-# 1. Use 'python setup/manage_versions.py install' for natlink packages
-# 2. Regular 'pip install -r requirements.txt' only installs dependencies
-# 3. Logging is handled by Python's built-in logging module (no additional deps needed)
-# 4. PyInstaller creates standalone executables with embedded dependencies
-
-# Optional packages for development
-# pytest>=7.1.2
-# pyenvutils
+# === NOTES D'INSTALLATION ===
+# 1. Installer les dépendances : pip install -r requirements.txt
+# 2. Installer les packages natlink : python setup/manage_versions.py install
+# 3. Lancer l'application : python -m gui
+# 4. Pour créer l'exécutable : python build_exe.py
+# === NOTES D'INSTALLATION ===
+# 1. Installer les dépendances : pip install -r requirements.txt
+# 2. Installer les packages natlink : python setup/manage_versions.py install
+# 3. Lancer l'application : python -m gui
+# 4. Pour créer l'exécutable : python build_exe.py

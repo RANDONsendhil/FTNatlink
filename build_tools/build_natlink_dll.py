@@ -22,7 +22,7 @@ Usage:
   python build_natlink_dll.py --help   # Show help
 
 For development without DLL:
-  python develop_with_fake_runtime.py  # Use fake natlink runtime
+  python development/develop_with_fake_runtime.py  # Use fake natlink runtime
 """
 
 import os
@@ -404,7 +404,7 @@ def print_alternative_solutions():
     print("   - Look for latest natlink installer")
     print()
     print("2. 🔧 Use fake runtime for development:")
-    print("   - Run: python develop_with_fake_runtime.py")
+    print("   - Run: python development/develop_with_fake_runtime.py")
     print("   - Good for testing grammars without Dragon")
     print()
     print("3. 🐍 Switch to 32-bit Python:")
