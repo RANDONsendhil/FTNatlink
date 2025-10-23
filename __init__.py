@@ -179,9 +179,9 @@ class TrayApp(wx.App):
         """Safely update progress with error handling"""
         try:
             # If main reference is lost, try backup
-            if not self.loading_frame and hasattr(self, '_loading_frame_backup'):
+            if not self.loading_frame and hasattr(self, "_loading_frame_backup"):
                 self.loading_frame = self._loading_frame_backup
-            
+
             if self.loading_frame and hasattr(self.loading_frame, "update_progress"):
                 # Since we're now using wx.CallLater instead of threading, we can call directly
                 self.loading_frame.update_progress(message, progress)
@@ -550,15 +550,17 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         """Get logger from the main app"""
         try:
             app = wx.GetApp()
-            if hasattr(app, 'log'):
+            if hasattr(app, "log"):
                 return app.log
             else:
                 # Fallback to basic logging
                 from core.logHandler import log
+
                 return log
         except Exception:
             # Last resort fallback
             import logging
+
             return logging.getLogger(__name__)
 
     def CreatePopupMenu(self):
