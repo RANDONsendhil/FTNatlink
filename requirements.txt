@@ -24,13 +24,13 @@ Pillow>=12.0.0                 # Traitement d'images pour icônes
 # Utilisé dans build_exe.py pour la conversion d'icônes
 
 # === DEVELOPMENT & MONITORING TOOLS ===
-psutil>=1.2.1                  # Monitoring des processus système
-# Utilisé dans tools/process_monitor.py
+psutil>=7.1.1                  # Monitoring des processus système et détection d'instances
+# Utilisé dans core/single_instance.py, core/mic_monitor.py, et tools/process_monitor.py
 
-speech-recognition>=3.8.1      # Alternative de reconnaissance vocale
+# speech-recognition>=3.8.1      # Alternative de reconnaissance vocale - DISABLED for Python 3.13
 # Utilisé dans tools/windows_speech.py
 
-pyttsx3>=2.90                  # Synthèse vocale text-to-speech
+# pyttsx3>=2.90                  # Synthèse vocale text-to-speech - DISABLED for Python 3.13
 # Utilisé dans tools/windows_speech.py
 
 # === CONFIGURATION & DATA ===
@@ -53,13 +53,23 @@ pyyaml>=6.0                    # Gestion des fichiers de configuration YAML
 #
 # Installation : python setup/manage_versions.py install
 
+# === RUNTIME DEPENDENCIES ===
+# Ces packages sont automatiquement disponibles avec Python ou wxPython :
+# - threading (standard library) - utilisé dans core/mic_monitor.py
+# - subprocess (standard library) - utilisé dans core/single_instance.py
+# - tempfile (standard library) - utilisé dans core/single_instance.py
+# - pathlib (standard library) - utilisé dans de nombreux modules
+# - typing (standard library) - pour les annotations de type
+
 # === NOTES D'INSTALLATION ===
-# 1. Installer les dépendances : pip install -r requirements.txt
-# 2. Installer les packages natlink : python setup/manage_versions.py install
-# 3. Lancer l'application : python -m gui
-# 4. Pour créer l'exécutable : python build_exe.py
-# === NOTES D'INSTALLATION ===
-# 1. Installer les dépendances : pip install -r requirements.txt
-# 2. Installer les packages natlink : python setup/manage_versions.py install
-# 3. Lancer l'application : python -m gui
-# 4. Pour créer l'exécutable : python build_exe.py
+# 1. Activer l'environnement virtuel : .\.venv\Scripts\Activate
+# 2. Installer les dépendances : pip install -r requirements.txt
+# 3. Installer les packages natlink : python setup/manage_versions.py install
+# 4. Lancer l'application : python __init__.py
+# 5. Pour créer l'exécutable : python build_exe.py ou .\build_exe.bat
+# 6. Tester l'exécutable : dist\FTNatlink.exe
+
+# === COMPATIBILITÉ ===
+# Python : 3.11+ recommandé (testé avec 3.11, 3.12, 3.13)
+# Windows : 10/11 (requis pour Dragon NaturallySpeaking)
+# Architecture : x64 pour développement, x86 requis pour Dragon production

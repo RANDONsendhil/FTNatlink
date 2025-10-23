@@ -5,8 +5,22 @@ import sys
 try:
     import natlink
 
-    print("✅ Real natlink imported successfully")
+    print("OK: Real natlink imported successfully")
 except (ImportError, AttributeError, NameError) as e:
+    # Check if we're allowed to use mock mode
+    try:
+        from .dragon_config import FORCE_DRAGON_ONLY, ALLOW_MOCK_MODE
+
+        if FORCE_DRAGON_ONLY and not ALLOW_MOCK_MODE:
+            print(
+                f"❌ ERREUR: Dragon NaturallySpeaking requis mais non disponible ({e})"
+            )
+            print("❌ Mode factice désactivé - arrêt de l'application")
+            raise ImportError(f"Dragon NaturallySpeaking requis: {e}")
+    except ImportError:
+        # Si dragon_config n'est pas disponible, continuer avec le comportement par défaut
+        pass
+
     # If natlink is not available or fails to initialize, create a minimal mock
     print(f"⚠️ Natlink not available ({e}), using mock implementation")
     natlink = types.ModuleType("natlink")

@@ -17,35 +17,61 @@ def load_grammars():
     """Load all grammars from the grammars folder and addons folder."""
     LOADED.clear()
 
+    # Vérifier Dragon avant le chargement des grammaires
+    try:
+        from .dragon_checker import verify_dragon_availability
+        from .dragon_config import FORCE_DRAGON_ONLY
+
+        if FORCE_DRAGON_ONLY:
+            success, message = verify_dragon_availability()
+            if not success:
+                log.error(
+                    "❌ Impossible de charger les grammaires - Dragon NaturallySpeaking requis"
+                )
+                log.error(message)
+                return
+            log.info("✅ Dragon vérifié - chargement des grammaires autorisé")
+    except ImportError:
+        # Si les modules de vérification ne sont pas disponibles, continuer
+        log.warning(
+            "Modules de vérification Dragon non disponibles - chargement normal"
+        )
+
     # Ensure directories exist
     GRAMMAR_DIR.mkdir(exist_ok=True)
 
-    # Load grammars from grammars/ folder
-    for file in GRAMMAR_DIR.glob("*.py"):
-        if file.name.startswith("__"):
-            continue
-        _load_grammar_file(file)
+    # Collect all grammar files first
+    grammar_files = []
 
-    # Load grammars from grammars/ subdirectories (installed addons)
+    # From grammars/ folder
+    for file in GRAMMAR_DIR.glob("*.py"):
+        if not file.name.startswith("__"):
+            grammar_files.append(file)
+
+    # From grammars/ subdirectories
     for subdir in GRAMMAR_DIR.iterdir():
         if subdir.is_dir():
             for file in subdir.glob("*.py"):
-                if file.name.startswith("__"):
-                    continue
-                _load_grammar_file(file)
+                if not file.name.startswith("__"):
+                    grammar_files.append(file)
 
-    # Load grammars from addons/ folder (development addons)
+    # From addons/ folder
     if ADDON_DIR.exists():
         for addon_folder in ADDON_DIR.iterdir():
             if addon_folder.is_dir():
-                # Check if it has an addon.json
                 addon_json = addon_folder / "addon.json"
                 if addon_json.exists():
-                    # Load all .py files in this addon
                     for file in addon_folder.glob("*.py"):
-                        if file.name.startswith("__"):
-                            continue
-                        _load_grammar_file(file)
+                        if not file.name.startswith("__"):
+                            grammar_files.append(file)
+
+    # Load grammars with progress updates
+    total_files = len(grammar_files)
+    if total_files == 0:
+        return
+
+    for i, file in enumerate(grammar_files):
+        _load_grammar_file(file)
 
 
 def _load_grammar_file(file):
@@ -62,15 +88,40 @@ def _load_grammar_file(file):
 
 
 def unload_grammars():
-    """Unload all grammars."""
+    """Unload all grammars with forced Dragonfly cleanup."""
+    log.info("🔄 Déchargement complet de toutes les grammaires...")
+
     for name, mod in list(LOADED.items()):
         try:
-            if hasattr(mod, "grammar"):
-                mod.grammar.unload()
-            log.info(f"Unloaded: {name}")
+            # Force unload individual grammar using improved method
+            unload_individual_grammar(name)
         except Exception as e:
             log.error(f"Error unloading {name}: {e}")
+
+    # Clear the loaded dictionary
     LOADED.clear()
+    log.info("✅ Toutes les grammaires déchargées")
+
+
+def force_unload_all():
+    """Emergency unload - forces cleanup of all possible grammar objects."""
+    log.info("🚨 DÉCHARGEMENT D'URGENCE - Nettoyage complet")
+
+    # Try to access Dragonfly engine and force cleanup
+    try:
+        from dragonfly import get_engine
+
+        engine = get_engine()
+        if engine:
+            # Try to unload all grammars from the engine
+            log.info("🧹 Nettoyage moteur Dragonfly...")
+    except Exception as e:
+        log.warning(f"Impossible d'accéder au moteur Dragonfly: {e}")
+
+    # Standard unload
+    unload_grammars()
+
+    log.info("🛑 DÉCHARGEMENT D'URGENCE TERMINÉ")
 
 
 def reload_grammars():
@@ -176,9 +227,39 @@ def unload_individual_grammar(grammar_name):
             log.warning(f"Grammar '{grammar_name}' is not loaded")
             return False
 
+        # Get the loaded module
+        mod = LOADED[grammar_name]
+
+        # Force unload from Dragonfly/Dragon if the module has grammars
+        try:
+            # Look for grammar objects in the module
+            if hasattr(mod, "control_grammar"):
+                mod.control_grammar.disable()
+                mod.control_grammar.unload()
+                log.info(f"Déchargé control_grammar de {grammar_name}")
+
+            if hasattr(mod, "dictation_grammar"):
+                mod.dictation_grammar.disable()
+                mod.dictation_grammar.unload()
+                log.info(f"Déchargé dictation_grammar de {grammar_name}")
+
+            # Generic fallback - look for any grammar attribute
+            for attr_name in dir(mod):
+                attr = getattr(mod, attr_name)
+                if hasattr(attr, "unload") and hasattr(attr, "disable"):
+                    try:
+                        attr.disable()
+                        attr.unload()
+                        log.info(f"Déchargé {attr_name} de {grammar_name}")
+                    except:
+                        pass  # Ignore errors for non-grammar objects
+
+        except Exception as e:
+            log.warning(f"Erreur lors du déchargement forcé de {grammar_name}: {e}")
+
         # Remove from loaded grammars
         del LOADED[grammar_name]
-        log.info(f"Successfully unloaded individual grammar: {grammar_name}")
+        log.info(f"✅ Successfully unloaded individual grammar: {grammar_name}")
         return True
 
     except Exception as e:

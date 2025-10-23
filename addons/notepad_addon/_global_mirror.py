@@ -36,11 +36,11 @@ import time, re
 # Réglages principaux
 # -----------------------------
 BROWSERS = ("chrome", "msedge", "firefox")  # exécutables sans .exe
-ENABLED_BROWSERS_ONLY = True  # n'agir que dans le navigateur
+ENABLED_BROWSERS_ONLY = False  # n'agir que dans le navigateur - Désactivé pour test
 INJECTION_MODE = "keys_slow"  # "paste" | "keys" | "keys_slow" | "mixed"
 SPACE_FIX = True
 ENTER_STROKE = "enter"  # ou "s-enter" selon l'éditeur web
-DEBUG_LOG = False
+DEBUG_LOG = True  # Activé pour debug
 
 
 def _dbg(msg):
@@ -420,7 +420,8 @@ def open_notepad_with_text():
     import tempfile
 
     try:
-        log.info("Opening Notepad...")
+        log.info("[_global_mirror] Commande 'ouvrir bloc-notes' exécutée!")
+        _dbg("open_notepad_with_text called")
         # Create a temporary file containing the French text and open it in Notepad.
         text = "salut comment ça va, c'est Sendhil"
 
@@ -448,6 +449,9 @@ _LEADING_PUNCT = set(",.;:!?)]}%»\"'")
 
 def mirror_text(texte=None):
     global _has_injected_once, _force_capital_next
+
+    _dbg(f"mirror_text called with: {texte}")
+    log.info(f"[_global_mirror] mirror_text appelé avec: '{texte}'")
 
     if ENABLED_BROWSERS_ONLY and not _in_browser():
         return
@@ -520,20 +524,69 @@ def wake_up():
             pass
 
 
+def force_unload_grammars():
+    """Force unload all Dragonfly grammars"""
+    global control_grammar, dictation_grammar
+    log.info("[notepad_addon] DÉCHARGEMENT FORCÉ des grammaires Dragonfly!")
+    try:
+        control_grammar.unload()
+        log.info("[notepad_addon] control_grammar déchargée")
+    except Exception as e:
+        log.error(f"[notepad_addon] Erreur déchargement control_grammar: {e}")
+
+    try:
+        dictation_grammar.unload()
+        log.info("[notepad_addon] dictation_grammar déchargée")
+    except Exception as e:
+        log.error(f"[notepad_addon] Erreur déchargement dictation_grammar: {e}")
+
+
+def reload_grammars():
+    """Reload all Dragonfly grammars"""
+    global control_grammar, dictation_grammar
+    log.info("[notepad_addon] RECHARGEMENT des grammaires Dragonfly!")
+    try:
+        control_grammar.load()
+        dictation_grammar.load()
+        log.info("[notepad_addon] Grammaires rechargées avec succès")
+    except Exception as e:
+        log.error(f"[notepad_addon] Erreur rechargement: {e}")
+
+
+# Small helpers used to replace multi-expression lambdas
+def _do_enter():
+    _dbg("Commande: enter")
+    Key(ENTER_STROKE).execute()
+
+
+def _do_enter_twice():
+    _dbg("Commande: enter x2")
+    Key(ENTER_STROKE).execute()
+    Key(ENTER_STROKE).execute()
+
+
+def _do_tab():
+    _dbg("Commande: tabulation")
+    Key("tab").execute()
+
+
+# -----------------------------
+# Control grammar (explicit commands)
+# -----------------------------
 class ControlRule(MappingRule):
     mapping = {
         # Retours/paragraphes
-        "nouvelle ligne": Function(lambda: Key(ENTER_STROKE).execute()),
-        "ligne suivante": Function(lambda: Key(ENTER_STROKE).execute()),
-        "saut de ligne": Function(lambda: Key(ENTER_STROKE).execute()),
-        "retour ligne": Function(lambda: Key(ENTER_STROKE).execute()),
-        "aller à la ligne": Function(lambda: Key(ENTER_STROKE).execute()),
-        "retour": Function(lambda: Key(ENTER_STROKE).execute()),
-        "retour à la ligne": Function(lambda: Key(ENTER_STROKE).execute()),
-        "nouveau paragraphe": Function(
-            lambda: (Key(ENTER_STROKE).execute(), Key(ENTER_STROKE).execute())
-        ),
-        "tabulation": Function(lambda: Key("tab").execute()),
+        "nouvelle ligne": Function(_do_enter),
+        "ligne suivante": Function(_do_enter),
+        "saut de ligne": Function(_do_enter),
+        "retour ligne": Function(_do_enter),
+        "aller à la ligne": Function(_do_enter),
+        "retour": Function(_do_enter),
+        "retour à la ligne": Function(_do_enter),
+        "nouveau paragraphe": Function(_do_enter_twice),
+        "tabulation": Function(_do_tab),
+        # Test command
+        "ouvrir bloc-notes": Function(open_notepad_with_text),
         # Effacements rapides
         "effacer ça": Function(lambda: _delete_prev_word(1)),
         "efface ça": Function(lambda: _delete_prev_word(1)),
@@ -577,25 +630,33 @@ class ControlRule(MappingRule):
         ),
         # Notepad commands
         "melvin": Function(open_notepad_with_text),
+        # Grammar control
+        "décharger grammaires": Function(force_unload_grammars),
+        "recharger grammaires": Function(reload_grammars),
+        "arrêter grammaires": Function(force_unload_grammars),
         # Micro
         "au repos": Function(go_to_sleep),
-        "au travail": Function(wake_up),
+        "reveil": Function(wake_up),
     }
     extras = [Dictation("cible")]
     defaults = {}
 
 
-control_grammar = Grammar("global_mirror_control", context=None)
+control_grammar = Grammar("notepad_addon_control", context=None)
 control_grammar.add_rule(ControlRule())
 control_grammar.load()
 
 # -----------------------------
 # Grammaire de dictée
 # -----------------------------
-browser_context = None
-for b in BROWSERS:
-    ctx = AppContext(executable=b)
-    browser_context = ctx if browser_context is None else (browser_context | ctx)
+# Contexte étendu - fonctionne partout si ENABLED_BROWSERS_ONLY est False
+if ENABLED_BROWSERS_ONLY:
+    browser_context = None
+    for b in BROWSERS:
+        ctx = AppContext(executable=b)
+        browser_context = ctx if browser_context is None else (browser_context | ctx)
+else:
+    browser_context = None  # Fonctionne partout
 
 
 class MirrorRule(MappingRule):
@@ -604,8 +665,8 @@ class MirrorRule(MappingRule):
     defaults = {}
 
 
-dictation_grammar = Grammar("global_mirror_dictation", context=browser_context)
+dictation_grammar = Grammar("notepad_addon_dictation", context=browser_context)
 dictation_grammar.add_rule(MirrorRule())
 dictation_grammar.load()
 
-log.info(">>> [_global_mirror] loaded OK (Always ON, non-exclusive)")
+log.info(">>> [notepad_addon] loaded OK (Always ON, non-exclusive)")
