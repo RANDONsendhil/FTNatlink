@@ -134,16 +134,16 @@ def check_dragon_mic_state():
             log.info(f"État micro Dragon: {mic_state}")
 
             if mic_state == "on":
-                log.info("[DEBUG] Micro is ON")
+                log.info(" -------------------------------> [DEBUG] Micro is ON")
                 return True, "Micro Dragon activé"
             elif mic_state == "off":
-                log.info("[DEBUG] Micro is OFF")
+                log.info(" -------------------------------> [DEBUG] Micro is OFF")
                 return False, "Micro Dragon éteint"
             elif mic_state == "sleeping":
-                log.info("[DEBUG] Micro is SLEEPING")
+                log.info(" -------------------------------> [DEBUG] Micro is SLEEPING")
                 return False, "Micro Dragon en veille"
             elif mic_state == "disabled":
-                log.info("[DEBUG] Micro is DISABLED")
+                log.info(" -------------------------------> [DEBUG] Micro is DISABLED")
                 return False, "Micro Dragon désactivé"
             else:
                 log.info(f"[DEBUG] Micro unknown state: {mic_state}")

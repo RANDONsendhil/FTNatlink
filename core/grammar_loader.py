@@ -8,13 +8,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from .logHandler import log
 
-GRAMMAR_DIR = Path(__file__).parent.parent / "grammars"
 ADDON_DIR = Path(__file__).parent.parent / "addons"
 LOADED = {}
 
 
 def load_grammars():
-    """Load all grammars from the grammars folder and addons folder."""
+    """Load all grammars from addons folder only."""
     LOADED.clear()
 
     # Vérifier Dragon avant le chargement des grammaires
@@ -37,25 +36,10 @@ def load_grammars():
             "Modules de vérification Dragon non disponibles - chargement normal"
         )
 
-    # Ensure directories exist
-    GRAMMAR_DIR.mkdir(exist_ok=True)
-
-    # Collect all grammar files first
+    # Collect all grammar files from addons only
     grammar_files = []
 
-    # From grammars/ folder
-    for file in GRAMMAR_DIR.glob("*.py"):
-        if not file.name.startswith("__"):
-            grammar_files.append(file)
-
-    # From grammars/ subdirectories
-    for subdir in GRAMMAR_DIR.iterdir():
-        if subdir.is_dir():
-            for file in subdir.glob("*.py"):
-                if not file.name.startswith("__"):
-                    grammar_files.append(file)
-
-    # From addons/ folder
+    # From addons/ folder only
     if ADDON_DIR.exists():
         for addon_folder in ADDON_DIR.iterdir():
             if addon_folder.is_dir():
@@ -130,25 +114,10 @@ def reload_grammars():
 
 
 def list_grammars():
-    """Return list of available grammar names from all sources."""
+    """Return list of available grammar names from addons only."""
     grammars = []
 
-    # Ensure directory exists
-    GRAMMAR_DIR.mkdir(exist_ok=True)
-
-    # Grammars from grammars/ folder
-    for f in GRAMMAR_DIR.glob("*.py"):
-        if not f.name.startswith("__"):
-            grammars.append(f.stem)
-
-    # Grammars from grammars/ subdirectories (installed addons)
-    for subdir in GRAMMAR_DIR.iterdir():
-        if subdir.is_dir():
-            for f in subdir.glob("*.py"):
-                if not f.name.startswith("__"):
-                    grammars.append(f.stem)
-
-    # Grammars from addons/ folder (development addons)
+    # Grammars from addons/ folder only
     if ADDON_DIR.exists():
         for addon_folder in ADDON_DIR.iterdir():
             if addon_folder.is_dir():
@@ -162,24 +131,11 @@ def list_grammars():
 
 
 def find_grammar_file(grammar_name):
-    """Find grammar file in any of the three locations."""
+    """Find grammar file in addons folder only."""
     if not grammar_name.endswith(".py"):
         grammar_name = f"{grammar_name}.py"
 
-    # Location 1: Direct in grammars/
-    grammar_file = GRAMMAR_DIR / grammar_name
-    if grammar_file.exists():
-        return grammar_file
-
-    # Location 2: In grammars subdirectories (installed addons)
-    if GRAMMAR_DIR.exists():
-        for subdir in GRAMMAR_DIR.iterdir():
-            if subdir.is_dir():
-                grammar_file = subdir / grammar_name
-                if grammar_file.exists():
-                    return grammar_file
-
-    # Location 3: In addons/ folder (development addons)
+    # Search in addons/ folder only
     if ADDON_DIR.exists():
         for addon_folder in ADDON_DIR.iterdir():
             if addon_folder.is_dir():

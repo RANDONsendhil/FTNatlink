@@ -1,0 +1,6 @@
+@echo off
+echo Activating virtual environment...
+call .venv\Scripts\activate.bat
+echo Running FTNatlink with 32-bit Python...
+python __init__.py
+pause

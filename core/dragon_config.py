@@ -7,7 +7,7 @@ Ce fichier configure FTNatlink pour fonctionner UNIQUEMENT avec Dragon.
 FORCE_DRAGON_ONLY = True  # Mode Dragon uniquement - OBLIGATOIRE
 ALLOW_MOCK_MODE = False  # Interdit le mode factice
 EXIT_ON_DRAGON_FAIL = False  # Ne pas quitter - DEBUG temporaire
-REQUIRE_MIC_ON = False  # Surveillance micro TEMPORAIREMENT DÉSACTIVÉE pour debug
+REQUIRE_MIC_ON = True  # Surveillance micro ACTIVÉE - Dragon fonctionnel
 
 # Messages d'erreur
 DRAGON_NOT_FOUND_MESSAGE = """

@@ -570,11 +570,20 @@ class TaskBarIcon(wx.adv.TaskBarIcon):
         # Ajouter l'état du micro Dragon en premier
         app = wx.GetApp()
         if hasattr(app, "mic_manager") and app.mic_manager:
-            if app.mic_manager.is_mic_on():
-                menu.Append(0, "🎤 Micro Dragon: ON")
-            else:
-                menu.Append(0, "🔇 Micro Dragon: OFF")
+            try:
+                mic_on = app.mic_manager.is_mic_on()
+                if mic_on:
+                    menu.Append(0, "🎤 Micro Dragon: ON")
+                else:
+                    menu.Append(0, "🔇 Micro Dragon: OFF")
+            except Exception as e:
+                self.log.error(f"Error checking mic state: {e}")
+                menu.Append(0, "❓ Micro Dragon: UNKNOWN")
             menu.Enable(0, False)  # Disable pour affichage seulement
+            menu.AppendSeparator()
+        else:
+            menu.Append(0, "❌ Micro Dragon: NOT MONITORED")
+            menu.Enable(0, False)
             menu.AppendSeparator()
 
         menu.Append(1, "Show Status")

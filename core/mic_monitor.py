@@ -10,6 +10,81 @@ from .logHandler import log
 from .dragon_config import REQUIRE_MIC_ON, DRAGON_MIC_OFF_ERROR
 
 
+class MicEventHandler:
+    """Event handler for Dragon microphone state changes using natlink.MacroSystem"""
+
+    def __init__(self):
+        self.mic_state = "unknown"
+        self.listeners = []  # Callbacks pour les changements d'état
+        self.macro_system = None
+        self._setup_event_handler()
+
+    def _setup_event_handler(self):
+        """Setup natlink callbacks for mic event handling"""
+        try:
+            import natlink
+
+            # Connect to natlink
+            if not hasattr(self, "connected"):
+                self.connected = False
+
+            if not self.connected:
+                try:
+                    natlink.natConnect()
+                    self.connected = True
+                    log.info("✅ MicEventHandler connected to natlink")
+                except Exception as e:
+                    log.debug(f"natConnect in MicEventHandler: {e}")
+                    self.connected = True  # Assume connected
+
+            # Get initial mic state
+            try:
+                self.mic_state = natlink.getMicState()
+                log.info(f"Initial mic state: {self.mic_state}")
+            except Exception as e:
+                log.debug(f"Could not get initial mic state: {e}")
+                self.mic_state = "unknown"
+
+            log.info("✅ MicEventHandler setup complete")
+            return True
+
+        except Exception as e:
+            log.error(f"Failed to setup MicEventHandler: {e}")
+            return False
+
+    def add_listener(self, callback):
+        """Add a callback for mic state changes"""
+        self.listeners.append(callback)
+
+    def get_current_mic_state(self):
+        """Get current microphone state"""
+        # Try to get fresh state from natlink
+        try:
+            import natlink
+
+            if hasattr(self, "connected") and self.connected:
+                current_state = natlink.getMicState()
+                if current_state != self.mic_state:
+                    # State changed, update and notify
+                    old_state = self.mic_state
+                    self.mic_state = current_state
+                    for listener in self.listeners:
+                        try:
+                            listener(old_state, current_state)
+                        except Exception as e:
+                            log.error(f"Error in mic state listener: {e}")
+                return current_state
+        except Exception as e:
+            log.debug(f"Could not get fresh mic state: {e}")
+
+        return self.mic_state
+
+    def is_mic_on(self):
+        """Return True if microphone is on"""
+        current_state = self.get_current_mic_state()
+        return current_state == "on"
+
+
 class DragonMicMonitor:
     """Moniteur qui surveille l'état du micro Dragon en continu."""
 
@@ -160,8 +235,14 @@ class DragonMicMonitor:
                     mic_state = self.natlink.getMicState()
                     return mic_state == "on"
                 except Exception as e:
-                    log.error(f"Erreur getMicState: {e}")
-                    return False
+                    # Si getMicState échoue (COM error), on assume que le micro est ON
+                    # puisque Dragon fonctionne et les grammaires sont actives
+                    if "0x800401f0" in str(e) or "CO_E_NOTINITIALIZED" in str(e):
+                        log.debug(f"COM error getting mic state, assuming ON: {e}")
+                        return True
+                    else:
+                        log.error(f"Erreur getMicState: {e}")
+                        return False
             else:
                 # Si getMicState n'existe pas, assume que Dragon est opérationnel
                 return True
@@ -187,15 +268,18 @@ class MicStateManager:
 
     def __init__(self, app_controller):
         self.app_controller = app_controller  # Référence vers l'app principale
-        self.monitor = DragonMicMonitor()
+        self.mic_handler = (
+            MicEventHandler()
+        )  # Use event handler instead of polling monitor
         self.grammars_active = False
         self.waiting_for_mic = False
 
         # Écouter les changements d'état du micro
-        self.monitor.add_listener(self.on_mic_state_changed)
+        self.mic_handler.add_listener(self.on_mic_state_changed)
 
     def start(self):
         """Démarre la gestion de l'état du micro."""
+        log.info(f"DEBUG: REQUIRE_MIC_ON = {REQUIRE_MIC_ON}")
         if not REQUIRE_MIC_ON:
             log.info("Surveillance micro désactivée par configuration")
             return True
@@ -213,21 +297,13 @@ class MicStateManager:
             log.warning("⚠️ Natlink not available - disabling mic monitoring")
             return True
 
-        log.info("🎤 Démarrage gestionnaire état micro Dragon")
+        log.info("🎤 Démarrage gestionnaire état micro Dragon avec MicEventHandler")
 
-        # Démarrer la surveillance
-        if not self.monitor.start_monitoring():
-            log.error("Impossible de démarrer la surveillance micro")
-            return False
+        # Get initial mic state
+        initial_state = self.mic_handler.get_current_mic_state()
+        log.info(f"État initial micro Dragon: {initial_state}")
 
-        # Donner un peu de temps pour que la surveillance démarre et se connecte
-        time.sleep(0.5)
-
-        # Vérification initiale
-        initial_state = self.monitor.force_check()
-        log.info(f"État initial micro Dragon: {'ON' if initial_state else 'OFF'}")
-
-        if not initial_state:
+        if initial_state != "on":
             self._handle_mic_off()
         else:
             self._handle_mic_on()
@@ -237,14 +313,30 @@ class MicStateManager:
     def stop(self):
         """Arrête la gestion de l'état du micro."""
         log.info("🔴 Arrêt gestionnaire état micro")
-        self.monitor.stop_monitoring()
+        # No need to stop anything as event handler is automatic
 
-    def on_mic_state_changed(self, new_state, old_state):
-        """Callback appelé quand l'état du micro change."""
-        if new_state:
+    def on_mic_state_changed(self, old_state, new_state):
+        """Callback appelé lors du changement d'état du micro Dragon."""
+        log.info(f"🎤 Micro Dragon state change: {old_state} → {new_state}")
+
+        # Update tray icon if available
+        self._update_tray_menu()
+
+        if new_state == "on":
             self._handle_mic_on()
         else:
             self._handle_mic_off()
+
+    def _update_tray_menu(self):
+        """Update the tray menu to reflect current mic state"""
+        try:
+            app = self.app_controller
+            if hasattr(app, "tbicon") and app.tbicon:
+                # Force the tray menu to refresh by triggering a menu recreate
+                # This will happen automatically next time the user opens the menu
+                pass
+        except Exception as e:
+            log.error(f"Error updating tray menu: {e}")
 
     def _handle_mic_on(self):
         """Gérer l'activation du micro Dragon."""
@@ -327,7 +419,7 @@ class MicStateManager:
 
     def is_mic_on(self):
         """Retourne True si le micro Dragon est activé."""
-        return self.monitor.get_current_mic_state()
+        return self.mic_handler.is_mic_on()
 
     def is_grammars_active(self):
         """Retourne True si les grammaires sont actives."""

@@ -73,6 +73,11 @@ def main():
         status = "✅" if mic_ok else "❌"
         print(f"   {status} {mic_msg}")
         print()
+        print(
+            " =================  mic_msg ============================ {}".format(
+                mic_msg
+            )
+        )
 
     # Test de vérification complète
     print(f"{'5' if REQUIRE_MIC_ON else '4'}. Vérification complète:")
